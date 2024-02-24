@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>PrincessWing Session Tool</title>
+    
+    <meta name="robots" content="noindex">
+    <link rel="stylesheet" href="{{url_for('static', filename='/common/room.css')}}">
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+    <script src="https://code.jquery.com/ui/1.13.2/jquery-ui.min.js" integrity="sha256-lSjKY0/srUM9BE3dPm+c4fBo1dky2v27Gdjm2uoZaL0=" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.ui-contextmenu/1.18.1/jquery.ui-contextmenu.min.js" integrity="sha512-4nGGKb4XFoEwfmltLfC6OOeG+npOf7qre2iywjLd4N87cwOmST7iqIEUIrFOdOMcwwVxlQH48jS/zmwEHsjzHA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-cookie/1.4.1/jquery.cookie.min.js"></script>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/3.0.4/socket.io.js" integrity="sha512-aMGMvNYu8Ue4G+fHa359jcPb1u+ytAF+P2SCb+PxrjCdO3n3ZTxJ30zuH39rimUggmTwmh2u7wvQsDTHESnmfQ==" crossorigin="anonymous"></script>
+
+    <script src="{{url_for('static', filename='/common/room.js')}}"></script>
+
+</head>
+<body>
+    <div id="get_roomid" data-roomid='{{ roomid|tojson }}'></div>
+    <div id="screen">
+        <div id="screen_header">
+            <div id="room_info">
+                <div id="room_title">お部屋のなまえ</div>
+            </div>
+            <div id="icon_list">
+                <div id="character_list_toggle" class="screen_header_button">
+                    <img class="item_icon" draggable="false" src="/static/common/img/character.png">
+                </div>
+                <div id="common_item_list_toggle" class="screen_header_button">
+                    <img class="item_icon" draggable="false" src="/static/common/img/common_img.png">
+                </div>
+                <div id="scene_item_list_toggle" class="screen_header_button">
+                    <img class="item_icon" draggable="false" src="/static/common/img/scene_img.png">
+                </div>
+                <div id="deck_item_list_toggle" class="screen_header_button">
+                    <img class="item_icon" draggable="false" src="/static/common/img/deck.png">
+                </div>
+                <div id="scene_list_toggle" class="screen_header_button">
+                    <img class="item_icon" draggable="false" src="/static/common/img/scene.png">
+                </div>
+                <div id="user_info">
+                    <div></div>
+                    <img draggable="false" src="/static/common/img/user_icon.png">
+                </div>
+            </div>
+        </div>
+        <div id="hand_area" class="hand_area_open">
+            <div id="hand_area_toggle"><div></div></div>
+            <div id="cards"></div>
+        </div>
+
+        <div id="chat">
+            <div class="chat_banner"></div>
+            <ul class="chat_list"></ul>
+            <div class="chat_textarea">
+                <div class="chat_block1">
+                    <textarea class="chat_name" name="chat" cols="20" rows="1" placeholder="name"></textarea>
+                    <button class="chat_submit" type="button">送信</button>
+                </div>
+                <textarea class="chat_message" name="chat" cols="50" rows="10" placeholder="message"></textarea>
+            </div>
+        </div>
+
+        <div id="background"></div>
+        <div id="window_wrapper" style="position: absolute; width: 100%; height: 100%; z-index: 0">
+            <div id="window_zoom" style="position: absolute; top: 50%; left: 50%; transform: translate(0px, 0px);">
+                <div id="items"></div>
+            </div>
+        </div>
+    </div>
+
+    <div id="user_info_menu" class="out_click_close">
+        <div id="user_data">
+            <div id="user_name"></div>
+            <div id="user_id"></div>
+        </div>
+        <ul>
+            <li id="login_button">ログイン</li>
+            <li id="logout_button">ログアウト</li>
+        </ul>
+    </div>
+
+    <ul id="screen_menu" class="right_click_menu out_click_close">
+        <li id="ground">背景・前景の変更</li>
+        <li id="common">共通アイテムの追加</li>
+        <li id="scene">シーンアイテムの追加</li>
+        <li id="playingcard">トランプの追加</li>
+    </ul>
+    <ul id="image_menu" class="right_click_menu out_click_close">
+        <li id="edit">編集</li>
+    </ul>
+    <ul id="stock_menu" class="right_click_menu out_click_close">
+        <li id="draw">一枚引く</li>
+        <li id="open">一枚めくる</li>
+        <li id="open_back">裏のまま一枚めくる</li>
+        <li id="shuffle">シャッフルする</li>
+        <li id="gather">カードを集める</li>
+        <li id="delete">山を削除</li>
+    </ul>
+    <ul id="discard_menu" class="right_click_menu out_click_close">
+        <li id="return_top">山札の上に戻す</li>
+        <li id="return_bottom">山札の下に戻す</li>
+    </ul>
+    <ul id="card_menu" class="right_click_menu out_click_close">
+        <li id="turn"></li>
+        <li id="hand">手札にする</li>
+        <li id="discard">捨て札にする</li>
+    </ul>
+    <ul id="character_menu" class="right_click_menu out_click_close">
+        <li id="edit">編集</li>
+        <li id="putaway">しまう</li>
+        <li id="own">自分の駒にする</li>
+        <li id="delete">削除</li>
+    </ul>
+    
+    <ul id="hand_menu" class="right_click_menu out_click_close">
+        <li id="discard">捨て札にする</li>
+        <li id="open">場に出す</li>
+        <li id="open_back">裏向きで場に出す</li>
+    </ul>
+
+    <div id="draggable_window_list">
+    </div>
+
+    <div id="login_window_wrapper" class="cover_window">
+        <div id="login_window" class="out_click_parent_close has_window_shadow">
+            <div id="login_header" class="window_header">
+                <span>ログイン</span>
+            </div>
+            <div id="input_error"></div>
+            <ul>
+                <li>
+                    <label for="l_user_id">ユーザーID</label>
+                    <input type="text" id="l_user_id" placeholder="User ID" value="">
+                </li>
+                <li>
+                    <label for="l_password">パスワード</label>
+                    <input type="password" id="l_password" placeholder="Password" value="">
+                </li>
+            </ul>
+            <div id="login_button" class="window_button">
+                <span>ログインする</span>
+            </div>
+            <div id="toggle_login" class="window_button">
+                <span>アカウント登録はこちらから</span>
+            </div>
+            <div id="login_close" class="window_button">
+                <span>閉じる</span>
+            </div>
+        </div>
+        <div id="register_window" class="out_click_parent_close">
+            <div id="input_error"></div>
+            <div id="register_header" class="window_header">
+                <span>アカウント登録</span>
+            </div>
+            <ul>
+                <li>
+                    <label for="r_user_id">ユーザーID</label>
+                    <input type="text" id="r_user_id" placeholder="半角英数字のみ" value="">
+                </li>
+                <li>
+                    <label for="r_password">パスワード</label>
+                    <input type="password" id="r_password" placeholder="半角英数字のみ、6文字以上20文字以下" value="">
+                </li>
+            </ul>
+            <div id="register_button" class="window_button">
+                <span>登録する</span>
+            </div>
+            <div id="toggle_login" class="window_button">
+                <span>ログインはこちらから</span>
+            </div>
+            <div id="login_close" class="window_button">
+                <span>閉じる</span>
+            </div>
+        </div>
+    </div>
+
+    <div id="ground_edit_window_wrapper" class="cover_window">
+        <div id="ground_edit_window" class="out_click_parent_close">
+            <div id="ground_edit_window_header"></div>
+            <ul id="edit_foreground_info">
+                <li id="foreground_width">
+                    <label for="width">横幅</label>
+                    <input type="number" id="width" value="">
+                </li>
+                <li id="foreground_height">
+                    <label for="height">縦幅</label>
+                    <input type="number" id="height" value="">
+                </li>
+            </ul>
+
+            <div id="set_image_button"></div>
+            <div id="ground_edit_window_footer">
+                <div id="save_ground_button" class="button">保存</div>
+            </div>
+        </div>
+    </div>
+
+    <div id="image_edit_window_wrapper" class="cover_window">
+        <div id="image_edit_window" class="out_click_parent_close">
+            <div id="image_edit_window_header"></div>
+            <ul id="edit_image_info">
+                <li id="image_width">
+                    <label for="width">横幅</label>
+                    <input type="number" id="width" value="">
+                </li>
+                <li id="image_height">
+                    <label for="height">縦幅</label>
+                    <input type="number" id="height" value="">
+                </li>
+                <li id="image_z-index">
+                    <label for="z-index">重なり優先度</label>
+                    <input type="number" id="z-index" value="">
+                </li>
+                <li id="image_x">
+                    <label for="x">x座標</label>
+                    <input type="number" id="x" value="">
+                </li>
+                <li id="image_y">
+                    <label for="y">y座標</label>
+                    <input type="number" id="y" value="">
+                </li>
+                <li id="image_rotate">
+                    <label for="rotate">回転</label>
+                    <input type="number" id="rotate" value="">
+                </li>
+            </ul>
+            <div id="edit_image_text">
+                <label for="text">テキスト</label>
+                <textarea id="text" rows="10" placeholder="マウスホバー時に表示されるテキスト"></textarea>
+            </div>
+
+            <div id="edit_image_switch">
+                <ul>
+                    <li id="fixed">
+                        <div>配置固定</div>
+                        <div class="slide_button">
+                            <input type="checkbox">
+                            <div class="thumb"></div>
+                            <div class="track"></div>
+                        </div>
+                    </li>
+                    <li id="hidden">
+                        <div>非表示</div>
+                        <div class="slide_button">
+                            <input type="checkbox">
+                            <div class="thumb"></div>
+                            <div class="track"></div>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+            <div id="set_image_button"></div>
+            <div id="image_edit_window_footer">
+                <div id="delete_item_button" class="button">削除</div>
+                <div id="save_item_button" class="button">保存</div>
+            </div>
+        </div>
+    </div>
+
+    <div id="character_edit_window_wrapper" class="cover_window">
+        <div id="character_edit_window" class="out_click_parent_close">
+            <div id="character_edit_window_header"></div>
+            <div id="character_edit_window_content">
+                <div id="character_info">
+                    <div>
+                        <div id="character_icon">
+                            <img/>
+                        </div>
+                        <div id="character_name">
+                            <label for="input_name">名前</label>
+                            <input type="text" id="input_name" value="">
+                        </div>
+                        <div id="character_initiative">
+                            <label for="input_initiative">イニシアティブ</label>
+                            <input type="number" id="input_initiative" value="">
+                        </div>
+                    </div>
+                    <textarea id="character_memo" name="character_memo" rows="10" placeholder="memo"></textarea>
+                    <div>
+                        <div id="character_scale">
+                            <label for="input_scale">拡大率（％）</label>
+                            <input type="number" id="input_scale" value="">
+                        </div>
+                        <div id="character_x">
+                            <label for="input_x">x</label>
+                            <input type="number" id="input_x" value="">
+                        </div>
+                        <div id="character_y">
+                            <label for="input_y">y</label>
+                            <input type="number" id="input_y" value="">
+                        </div>
+                    </div>
+                </div>
+                <div id="character_info2">
+                    <div id="character_status">
+                        <div class="character_info2_title">
+                            <div>ステータス</div>
+                            <div>
+                                <div class="add_button">＋</div>
+                                <div class="subtract_button">－</div>
+                            </div>
+                        </div>
+                        <ul id="character_status_list"></ul>
+                    </div>
+                    <div id="character_param">
+                        <div class="character_info2_title">
+                            <div>パラメータ</div>
+                            <div>
+                                <div class="add_button">＋</div>
+                                <div class="subtract_button">－</div>
+                            </div>
+                        </div>
+                        <ul id="character_param_list"></ul>
+                    </div>
+                    <div id="character_command">
+                        <div class="character_info2_title">
+                            <div class="character_content_title">
+                                コマンド
+                            </div>
+                        </div>
+                        <textarea id="character_command_area" name="character_command_area" rows="10" placeholder=""></textarea>
+                    </div>
+                </div>
+    
+                <div id="character_switch">
+                    <ul>
+                        <li id="status_hidden">
+                            <div>ステータス非表示</div>
+                            <div class="slide_button">
+                                <input type="checkbox">
+                                <div class="thumb"></div>
+                                <div class="track"></div>
+                            </div>
+                        </li>
+                        <li id="icon_hidden">
+                            <div>キャラクター一覧に非表示</div>
+                            <div class="slide_button">
+                                <input type="checkbox">
+                                <div class="thumb"></div>
+                                <div class="track"></div>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            <div id="character_edit_window_footer">
+                <div id="delete_character_button" class="button">削除</div>
+                <div id="copy_character_button" class="button">複製</div>
+                <div id="save_character_button" class="button">保存</div>
+            </div>
+        </div>
+    </div>
+
+    <div id="image_folder_wrapper" class="cover_window">
+        <div id="image_folder" class="out_click_parent_close">
+            <div id="image_folder_header">画像フォルダ</div>
+            <div id="input_zone">
+                <ul id="image_list"></ul>
+            </div>
+            <div id="image_folder_footer">閉じる</div>
+        </div>
+        <ul id="image_folder_menu" class="right_click_menu out_click_close">
+            <li id="delete">画像の削除</li>
+        </ul>
+    </div>
+</body>
+</html>

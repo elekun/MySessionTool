@@ -1,0 +1,298 @@
+body {
+    margin: 0;
+    padding: 0;
+    width: 100vw;
+    height: 100vh;
+}
+
+.right_click_menu {
+    position: absolute;
+    z-index: 10000;
+    display: none;
+    width: 150px;
+    background-color: rgb(33, 33, 33);
+    list-style: none;
+    padding: 5px 0px;
+    margin: 0px;
+}
+.right_click_menu li{
+    color: rgb(240, 240, 240);
+    font-size: 0.9em;
+    padding: 5px 0px;
+    margin: 5px 10px;
+}
+.right_click_menu li:hover{
+    background-color: rgba(255, 255, 255, 0.25);
+}
+
+#screen {
+    overflow: hidden;
+    position: absolute;
+    inset: 0px;
+    outline: none;
+    height: 100%;
+    right: 375px;
+    user-select: none;
+}
+#screen_header {
+    position: absolute;
+    width: 100%;
+    height: 64px;
+    z-index: 100000;
+    background-color: rgba(0, 0, 0, 0.3);
+}
+
+.image_item {
+    background-color: rgba(0, 0, 0, 0);
+}
+.image_item[data-fixed=false][data-hidden=false]:hover {
+    background-color: rgba(0, 0, 0, 0.25);
+}
+
+.chat {
+    width: 375px;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 128);
+    display: flex;
+    flex-direction: column;
+    right: 0px;
+    position: fixed;
+    z-index: 0;
+    border-left: 1px solid rgba(255, 255, 255, 0.12);
+    background: none rgba(44, 44, 44, 0.87);
+}
+.chat_banner{
+    position: relative;
+    width: 100%;
+    height: 64px;
+    background-color: rgb(33, 33, 33);
+    box-shadow: 0px 3px 3px black;
+}
+.chat_list{
+    flex-grow: 1;
+    overflow-y: scroll;
+    margin: 0px;
+}
+.chat_textarea {
+    background-color: rgb(50, 50, 50);
+    display: flex;
+    flex-direction: column;
+}
+.chat_block1{
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    margin-top: 10px;
+    margin-bottom: 10px;
+}
+
+.chat_name {
+    font-size: 2em;
+    color: rgb(192, 192, 192);
+    background-color: rgb(22, 22, 22);
+    border: none;
+    resize: none;
+}
+.chat_submit {
+
+}
+.chat_message {
+    font-size: 1.2em;
+    color: rgb(192, 192, 192);
+    background-color: rgb(22, 22, 22);
+    border: none;
+    resize: none;
+}
+
+.cover_window{
+    position: relative;
+    z-index: 1000000;
+    height: 100%;
+    outline: 0px;
+    display: none;
+    justify-content: center;
+    align-items: center;
+    margin: 0;
+    padding: 0;
+    background: none rgba(0, 0, 0, 0.5);
+    background-color: rgba(0, 0, 0, 0.5);
+}
+
+#image_folder {
+    margin: 32px;
+    position: relative;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    width: calc(100% - 64px);
+    max-width: 900px;
+    height: calc(100% - 64px);
+    color: rgb(240, 240, 240);
+    background: none rgba(44, 44, 44, 0.87);
+}
+#image_folder_header {
+    height: 64px;
+    background-color: rgb(22, 22, 22);
+    display: flex;
+    align-items: center;
+    padding-left: 24px;
+}
+#input_zone {
+    flex-grow: 1;
+    opacity: 1.0;
+}
+#input_zone ul {
+    list-style: none;
+    text-align: left;
+    display: flex;
+    flex-wrap: wrap;
+    padding: 8px;
+    margin: 0;
+}
+#input_zone ul li {
+    width: 160px;
+    height: 90px;
+    margin: calc((100% - 800px) / 10.0);
+    cursor: pointer;
+}
+#input_zone ul li img {
+    width: 160px;
+    height: 90px;
+    object-fit: contain;
+    background-color: rgba(0, 0, 0, 0.5);
+}
+
+#image_folder_footer {
+    height: 48px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: rgba(33, 33, 33);
+}
+#image_folder_footer:hover {
+    background-color: rgba(255, 255, 255, 0.25);
+}
+
+#image_edit_window {
+    margin: 32px;
+    position: relative;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    width: calc(100% - 64px);
+    max-width: 450px;
+    height: calc(100% - 64px);
+    max-height: 600px;
+    color: rgb(240, 240, 240);
+    background: none rgba(44, 44, 44, 0.87);
+}
+#image_edit_window_header {
+    z-index: 1000000;
+    width: 100%;
+    height: 64px;
+    background-color: rgb(22, 22, 22);
+}
+
+#edit_image_info {
+    text-align: left;
+    display: flex;
+    flex-wrap: wrap;
+    padding: 8px;
+    margin: 0;
+}
+#edit_image_info li {
+    width: 128px;
+    margin: calc((100% - 128px * 3) / 6);
+    list-style: none;
+}
+#edit_image_info li input {
+    width: calc(128px - 8px);
+}
+#edit_image_text{
+    width: calc(100% - 32px);
+    padding: 8px 16px;
+}
+#edit_image_text textarea{
+    width: calc(100% - 8px);
+    resize: none;
+}
+#image_edit_window_footer {
+    display: flex;
+    justify-content: center;
+    width: 100%;
+    flex-direction: row;
+}
+#image_edit_window_footer .button {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 8px;
+    width: 200px;
+    user-select: none;
+}
+#image_edit_window_footer #delete_item_button{
+    color:rgb(220, 0, 78);
+}
+#image_edit_window_footer #save_item_button{
+    color:rgb(33, 150, 243);
+}
+
+#edit_image_switch{
+    margin: 0;
+    padding: 8px 16px;
+}
+#edit_image_switch ul{
+    padding: 0px;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-around;
+}
+#edit_image_switch ul li{
+    list-style: none;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    width: 150px;
+}
+#edit_image_switch ul li > *{
+    margin: 0px 5px;
+}
+
+.slide_button {
+    width: 40px;
+    height: 20px;
+    display: flex;
+    align-items: center;
+    margin: 0px 8px;
+}
+.slide_button input {
+    position: absolute;
+    opacity: 0;
+    width: 40px;
+    height: 20px;
+    margin: 0px;
+    z-index: 2;
+}
+.slide_button .thumb {
+    position: absolute;
+    z-index: 1;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background-color: rgb(240, 240, 240);
+}
+.slide_button input:checked ~ .thumb {
+    transform: translateX(20px);
+    background-color: rgb(33, 150, 243);
+}
+.slide_button .track {
+    position: absolute;
+    width: 40px;
+    height: 14px;
+    border-radius: 7px;
+    background-color: rgb(240, 240, 240);
+    opacity: 0.5;
+}
+.slide_button input:checked ~ .track {
+    background-color: rgb(33, 150, 243);
+}

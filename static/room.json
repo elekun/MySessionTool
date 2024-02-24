@@ -1,0 +1,33 @@
+{
+    "image": [
+        "./static/img/shrine_noon.jpg",
+        "./static/img/shrine_afternoon.jpg",
+        "./static/img/shrine_night_on.jpg",
+        "./static/img/shrine_night_off.jpg",
+        "./static/img/leaf_1.png",
+        "./static/img/leaf_2.png",
+        "./static/img/leaf_3.png",
+        "./static/img/nuts_1.png",
+        "./static/img/nuts_2.png",
+        "./static/img/nuts_3.png"
+    ],
+    "now_item": {
+        "background": "./static/img/shrine_noon.jpg",
+        "foreground": "",
+        "scene_item": []
+    },
+    "common_item": [
+        {
+            "type": "common_item",
+            "filepath": "./static/img/nuts_3.png",
+            "width": 256,
+            "height": 256,
+            "z-index": 0,
+            "x": -287,
+            "y": 103,
+            "rotate": 0,
+            "fixed": true,
+            "hidden": false
+        }
+    ]
+}

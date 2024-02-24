@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>PrincessWing Session Tool</title>
+    
+    <link rel="stylesheet" href="{{url_for('static', filename='index.css')}}">
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+    <script src="https://code.jquery.com/ui/1.13.2/jquery-ui.min.js" integrity="sha256-lSjKY0/srUM9BE3dPm+c4fBo1dky2v27Gdjm2uoZaL0=" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.ui-contextmenu/1.18.1/jquery.ui-contextmenu.min.js" integrity="sha512-4nGGKb4XFoEwfmltLfC6OOeG+npOf7qre2iywjLd4N87cwOmST7iqIEUIrFOdOMcwwVxlQH48jS/zmwEHsjzHA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/3.0.4/socket.io.js" integrity="sha512-aMGMvNYu8Ue4G+fHa359jcPb1u+ytAF+P2SCb+PxrjCdO3n3ZTxJ30zuH39rimUggmTwmh2u7wvQsDTHESnmfQ==" crossorigin="anonymous"></script>
+
+    <script src="./static/index.js"></script>
+</head>
+<body>
+    <div id="screen">
+        <div id="screen_header"></div>
+        <div id="background"></div>
+        <div id="window_wrapper" style="position: absolute; width: 100%; height: 100%; z-index: 10000">
+            <div id="window_zoom" style="position: absolute; top: 50%; left: 50%; transform: translate(0px, 0px);">
+                <div id="items" style="transform: scale(1.0)"></div>
+            </div>
+        </div>
+        <ul id="screen_menu" class="right_click_menu">
+            <li id="ground">背景・前景の変更</li>
+            <li id="common">共通アイテムの追加</li>
+            <li id="scene">シーンアイテムの追加</li>
+        </ul>
+        <ul id="image_menu" class="right_click_menu">
+            <li id="edit">編集</li>
+        </ul>
+    </div>
+    <div class="chat">
+        <div class="chat_banner"></div>
+        <ul class="chat_list">
+
+        </ul>
+        <div class="chat_textarea">
+            <div class="chat_block1">
+                <textarea class="chat_name" name="chat" cols="20" rows="1" placeholder="name"></textarea>
+                <button class="chat_submit" type="button">送信</button>
+            </div>
+            <textarea class="chat_message" name="chat" cols="50" rows="10" placeholder="message"></textarea>
+        </div>
+    </div>
+
+    <div id="image_folder_wrapper" class="cover_window">
+        <div id="image_folder">
+            <div id="image_folder_header">画像フォルダ</div>
+            <div id="input_zone">
+                <form action="{{url_for('index')}}" method="POST" enctype="multipart/form-data">
+                    <ul id="image_list"></ul>
+                </form>
+            </div>
+            <div id="image_folder_footer">閉じる</div>
+        </div>
+        <ul id="image_folder_menu" class="right_click_menu">
+            <li id="delete">画像の削除</li>
+        </ul>
+    </div>
+
+    <div id="image_edit_window_wrapper" class="cover_window">
+        <div id="image_edit_window">
+            <div id="image_edit_window_header"></div>
+            <ul id="edit_image_info">
+                <li id="image_width">
+                    <label for="width">横幅</label>
+                    <input type="number" id="width" value="">
+                </li>
+                <li id="image_height">
+                    <label for="height">縦幅</label>
+                    <input type="number" id="height" value="">
+                </li>
+                <li id="image_z-index">
+                    <label for="z-index">重なり優先度</label>
+                    <input type="number" id="z-index" value="">
+                </li>
+                <li id="image_x">
+                    <label for="x">x座標</label>
+                    <input type="number" id="x" value="">
+                </li>
+                <li id="image_y">
+                    <label for="y">y座標</label>
+                    <input type="number" id="y" value="">
+                </li>
+                <li id="image_rotate">
+                    <label for="rotate">回転</label>
+                    <input type="number" id="rotate" value="">
+                </li>
+            </ul>
+            <div id="edit_image_text">
+                <label for="text">テキスト</label>
+                <textarea id="text" rows="10" placeholder="マウスホバー時に表示されるテキスト"></textarea>
+            </div>
+
+            <div id="edit_image_switch">
+                <ul>
+                    <li id="fixed">
+                        <div>配置固定</div>
+                        <div class="slide_button">
+                            <input type="checkbox">
+                            <div class="thumb"></div>
+                            <div class="track"></div>
+                        </div>
+                    </li>
+                    <li id="hidden">
+                        <div>非表示</div>
+                        <div class="slide_button">
+                            <input type="checkbox">
+                            <div class="thumb"></div>
+                            <div class="track"></div>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+            <div id="set_image_button"></div>
+            <div id="image_edit_window_footer">
+                <div id="delete_item_button" class="button">削除</div>
+                <div id="save_item_button" class="button">保存</div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
