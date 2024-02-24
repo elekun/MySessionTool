@@ -16,7 +16,7 @@
             "roomid": "test",
             "item_type": "common_item",
             "filepath": "/static/room/test/img/man_icon.png",
-            "text": "",
+            "text": "test",
             "width": 256,
             "height": 256,
             "z-index": 0,
