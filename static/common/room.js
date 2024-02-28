@@ -458,7 +458,7 @@ $(document).ready(function(){
         else {
             $.cookie("zoom_ratio", 1.0);
         }
-        socket.emit("user_check", {"roomid" : get_roomid(), "user_id": user_id});
+        socket.emit("join_process", {"roomid" : get_roomid(), "user_id": user_id});
     });
 
     socket.on("set_user_info", function(msg, cb){
@@ -1023,13 +1023,22 @@ $(function(){
         }
     });
 
-    // 画像編集ウィンドウ
+    // 共通アイテム・シーンアイテム編集
     $("#image_menu > #edit").on("mousedown", function(event){
         if(event.which == 1){
             open_image_edit_window();
             event.stopPropagation();
         }
     });
+    
+    $("#character_menu > #edit").on("mousedown", function(event){
+        if(event.which == 1){
+            open_character_edit_window($("#character_menu").attr("data-id"));
+            event.stopPropagation();
+        }
+    });
+
+    // キャラクター編集
 
     //山札・捨て札・場札の右クリックメニュー
     (function(){
@@ -1154,7 +1163,6 @@ $(function(){
 
 // 範囲外左クリックでメニューを閉じる
 $(document).on("mousedown", function(event){
-    console.log(event.target);
     if(event.which == 1){
         if(!$(event.target).closest($("#image_edit_window")).length){
             if($("#image_edit_window_wrapper").css("display") != "none"){
@@ -1173,7 +1181,13 @@ $(document).on("mousedown", function(event){
             event.stopPropagation();
         }
         if (!$(event.target).closest($(".out_click_parent_close")).length){
-            $(".out_click_parent_close").parent().css({"display": "none"});
+            let flag = true;
+            $($(".out_click_parent_close").get().reverse()).each(function(i, element){
+                if($(element).parent().css("display") != "none" && flag){
+                    $(element).parent().css({"display": "none"});
+                    flag = false;
+                }
+            });
             event.stopPropagation();
         }
         if(!$(event.target).closest($("#hand_area #cards *")).length){

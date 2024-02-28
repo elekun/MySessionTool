@@ -36,7 +36,9 @@ def room(roomid):
     return render_template('room.html', roomid=roomid, async_mode=socketio.async_mode)
 
 @socketio.event
-def user_check(message):
+def join_process(message):
+    join_room(message['roomid'])
+
     user_id = message["user_id"]
     user_type = "guest"
     user_name = "ゲスト"
@@ -102,7 +104,7 @@ def set_background(message):
         d["now_item"]["background"] = message["filepath"]
 
     save_room_json(message["roomid"], d)
-    emit('window_update', d, broadcast=True)
+    emit('window_update', d, to=message["roomid"])
 
 
 @socketio.event
@@ -115,7 +117,7 @@ def add_item(message):
             d["now_item"]["scene_item"].append(message)
 
     save_room_json(message["roomid"], d)
-    emit('window_update', d, broadcast=True)
+    emit('window_update', d, to=message["roomid"])
 
 @socketio.event
 def delete_item(message):
@@ -127,7 +129,7 @@ def delete_item(message):
             del d["now_item"]["scene_item"][message["index"]]
         
     save_room_json(message["roomid"], d)
-    emit('window_update', d, broadcast=True)
+    emit('window_update', d, to=message["roomid"])
 
 @socketio.event
 def add_character(message):
@@ -214,7 +216,7 @@ def update_item(message):
 
         if flag:
             save_room_json(message["roomid"], d)
-            emit('window_update', d, broadcast=True)
+            emit('window_update', d, to=message["roomid"])
             if message["item_type"] == "common_item":
                 emit('common_item_list_update')
             if message["item_type"] == "scene_item":
@@ -226,7 +228,7 @@ def update_item(message):
 def init_window(message):
     with open(get_room_json(message["roomid"]), 'r', encoding="utf-8") as f:
         d = json.load(f)
-    emit('window_update', d, broadcast=True)
+    emit('window_update', d, to=message["roomid"])
 
     hand = []
     for card in d["players"][message["user_id"]]["hand"]:
@@ -242,7 +244,7 @@ def add_default_deck(message):
         d["deck_item"][deck_id] = deck
 
     save_room_json(message["roomid"], d)
-    emit('window_update', d, broadcast=True)
+    emit('window_update', d, to=message["roomid"])
 
 
 @socketio.event
@@ -255,7 +257,7 @@ def draw_card(message):
         d["players"][user_id]["hand"].append({"deckid": message["deckid"], "cardid": deck["stock"].pop(0)})
 
     save_room_json(message["roomid"], d)
-    emit('window_update', d, broadcast=True)
+    emit('window_update', d, to=message["roomid"])
 
     hand = []
     for card in d["players"][user_id]["hand"]:
@@ -270,7 +272,7 @@ def open_card(message):
         d["card_item"].append({"deckid": message["deckid"], "cardid": deck["stock"].pop(0), "x": 0, "y": 0, "is_back": message["is_back"]})
       
     save_room_json(message["roomid"], d)
-    emit('window_update', d, broadcast=True)
+    emit('window_update', d, to=message["roomid"])
 
 @socketio.event
 def shuffle_card(message):
@@ -279,7 +281,7 @@ def shuffle_card(message):
         random.shuffle(d["deck_item"][message["deckid"]]["stock"])
       
     save_room_json(message["roomid"], d)
-    emit('window_update', d, broadcast=True)
+    emit('window_update', d, to=message["roomid"])
 
 @socketio.event
 def gather_card(message):
@@ -292,7 +294,7 @@ def gather_card(message):
 
       
     save_room_json(message["roomid"], d)
-    emit('window_update', d, broadcast=True)
+    emit('window_update', d, to=message["roomid"])
     
     hand = []
     for card in d["players"][message["user_id"]]["hand"]:
@@ -308,7 +310,7 @@ def discard_fromcard(message):
         d["card_item"] = [card for card in d["card_item"] if card["deckid"] != message["deckid"] or card["cardid"] != message["cardid"]]
     
     save_room_json(message["roomid"], d)
-    emit('window_update', d, broadcast=True)
+    emit('window_update', d, to=message["roomid"])
 
 @socketio.event
 def discard_fromhand(message):
@@ -320,7 +322,7 @@ def discard_fromhand(message):
         d["players"][message["user_id"]]["hand"].remove({"deckid": message["deckid"], "cardid": message["cardid"]})
     
     save_room_json(message["roomid"], d)
-    emit('window_update', d, broadcast=True)
+    emit('window_update', d, to=message["roomid"])
 
     hand = []
     for card in d["players"][message["user_id"]]["hand"]:
@@ -335,7 +337,7 @@ def open_fromhand(message):
         d["players"][message["user_id"]]["hand"].remove({"deckid": message["deckid"], "cardid": message["cardid"]})
       
     save_room_json(message["roomid"], d)
-    emit('window_update', d, broadcast=True)
+    emit('window_update', d, to=message["roomid"])
 
     hand = []
     for card in d["players"][message["user_id"]]["hand"]:
@@ -357,7 +359,7 @@ def return_card(message):
             deck["discard"].clear()
     
     save_room_json(message["roomid"], d)
-    emit('window_update', d, broadcast=True)
+    emit('window_update', d, to=message["roomid"])
 
 @socketio.event
 def connect():

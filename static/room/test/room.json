@@ -20,8 +20,8 @@
             "width": 256,
             "height": 256,
             "z-index": 0,
-            "x": -475,
-            "y": 134,
+            "x": -340,
+            "y": 66,
             "rotate": 0,
             "fixed": false,
             "hidden": false
@@ -427,8 +427,8 @@
         "0": {
             "user_id": "guest-IGS",
             "img": "/static/room/test/img/man_icon.png",
-            "x": 94,
-            "y": -383,
+            "x": 40,
+            "y": -427,
             "scale": 50,
             "name": "おなまえ",
             "initiative": 13,
@@ -459,6 +459,33 @@
             "hidden": true,
             "status_hidden": false,
             "icon_hidden": false
+        },
+        "1": {
+            "user_id": "guest-xIx",
+            "img": "",
+            "x": 0,
+            "y": 0,
+            "scale": 1.0,
+            "name": "",
+            "initiative": 0,
+            "text": "",
+            "commands": "",
+            "status": [
+                {
+                    "label": "HP",
+                    "value": 0,
+                    "max": 0
+                }
+            ],
+            "params": [
+                {
+                    "label": "",
+                    "value": "0"
+                }
+            ],
+            "hidden": true,
+            "status_hidden": false,
+            "icon_hidden": false
         }
     },
     "room_master": [
@@ -466,6 +493,10 @@
     ],
     "players": {
         "guest-IGS": {
+            "hand": [],
+            "character": []
+        },
+        "guest-xIx": {
             "hand": [],
             "character": []
         }
