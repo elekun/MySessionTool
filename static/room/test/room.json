@@ -4,11 +4,14 @@
         "/static/room/test/img/shrine_afternoon.jpg",
         "/static/room/test/img/shrine_night_on.jpg",
         "/static/room/test/img/shrine_night_off.jpg",
-        "/static/room/test/img/man_icon.png"
+        "/static/room/test/img/man_icon.png",
+        "/static/room/test/img/KPコマ.png"
     ],
     "now_item": {
-        "background": "/static/room/test/img/shrine_noon.jpg",
-        "foreground": "",
+        "background": "/static/room/test/img/shrine_night_off.jpg",
+        "foreground": "/static/room/test/img/shrine_noon.jpg",
+        "fore_width": 480,
+        "fore_height": 270,
         "scene_item": []
     },
     "common_item": [
@@ -16,12 +19,12 @@
             "roomid": "test",
             "item_type": "common_item",
             "filepath": "/static/room/test/img/man_icon.png",
-            "text": "test",
+            "text": "ああああaaaaaaaaaaaaaaaaaaaaaa",
             "width": 256,
             "height": 256,
             "z-index": 0,
-            "x": -340,
-            "y": 66,
+            "x": -10,
+            "y": -542,
             "rotate": 0,
             "fixed": false,
             "hidden": false
@@ -357,10 +360,10 @@
                 }
             ],
             "back": "/static/common/img/playingcard/back.png",
-            "stock_x": -428,
-            "stock_y": -279,
-            "discard_x": -426,
-            "discard_y": -80,
+            "stock_x": -421,
+            "stock_y": -198,
+            "discard_x": -417,
+            "discard_y": 36,
             "width": 96,
             "height": 144,
             "stock": [
@@ -426,10 +429,10 @@
     "character_item": {
         "0": {
             "user_id": "guest-IGS",
-            "img": "/static/room/test/img/man_icon.png",
-            "x": 40,
-            "y": -427,
-            "scale": 50,
+            "img": "/static/room/test/img/KPコマ.png",
+            "x": -837,
+            "y": -1287,
+            "scale": 10,
             "name": "おなまえ",
             "initiative": 13,
             "text": "hoge",

@@ -46,9 +46,18 @@ function open_image_folder(it, st, id = ""){
 function set_image_list () {
     $.getJSON((`/static/room/${get_roomid()}/room.json`), function(data){
         $("#image_list").empty();
-        data.image.forEach(src => {
-            let li = $("<li id='image_element'><img/></li>");
-            li.children("img").attr("src", src);
+        data["image"].push("");
+        
+        data["image"].reverse().forEach(src => {
+            let li;
+            if(src){ 
+                li = $("<li id='image_element'><img/></li>");
+                li.children("img").attr("src", src);
+            }
+            else {
+                li = $("<li id='image_element'>NO IMAGE</li>");
+                li.css({"display": "flex", "justify-content": "center", "align-items": "center", "background-color": "black"});
+            }
 
             // クリック時の動作
             li.on("mousedown", event => {
@@ -64,10 +73,13 @@ function set_image_list () {
                     }
                     else if(select_type == "update"){
                         if(item_type == "background"){
-                            socket.emit("set_background", {"roomid" : get_roomid(),"filepath": src});
+                            socket.emit("update_ground", {"roomid" : get_roomid(), "background": src});
+                        }
+                        else if(item_type == "foreground"){
+                            socket.emit("update_ground", {"roomid" : get_roomid(),"foreground": src});
                         }
                         else if(item_type == "common_item" || item_type == "scene_item"){
-                            socket.emit("update_item", {"roomid" : get_roomid(),"item_type": item_type, "filepath": src});
+                            socket.emit("update_item", {"roomid" : get_roomid(),"item_type": item_type, "index": Number($("#image_edit_window").attr("data-index")), "filepath": src});
                         }
                         else if(item_type == "character_item"){
                             $("#character_edit_window #character_icon img").attr("src", src);
@@ -114,43 +126,68 @@ function open_image_menu(menu, x, y){
     }
 }
 
-let now_edit_item_transform = "";
+function open_ground_edit_window(){
+    $("#ground_edit_window_wrapper").css({"display": "flex"});
+    $("#ground_edit_window #set_background_image_button").off("mousedown").on("mousedown", function(event){
+        open_image_folder("background", "update");
+        event.stopPropagation();
+    });
+    $("#ground_edit_window #set_foreground_image_button").off("mousedown").on("mousedown", function(event){
+        open_image_folder("foreground", "update");
+        event.stopPropagation();
+    });
+    
+    $.getJSON((`/static/room/${get_roomid()}/room.json`), function(data){
+        $("#edit_foreground_info #width").attr("value", data["now_item"]["fore_width"]);
+        $("#edit_foreground_info #height").attr("value", data["now_item"]["fore_height"]);
+    });
+}
+function close_ground_edit_window(){
+    $("#ground_edit_window_wrapper").css({"display": "none"});
+    socket.emit("update_ground", {"roomid" : get_roomid(), "width": Number($("#edit_foreground_info #width").val()), "height": Number($("#edit_foreground_info #height").val())});
+}
+
 function open_image_edit_window(){
     $("#image_edit_window_wrapper").css({"display": "flex"});
     $("#image_menu").css({"display": "none"});
-    
-    let item;
-    let item_type = $("#image_edit_window").attr("data-item_type");
-    if(item_type == "common_item"){
-        item = $(`.common_item:eq(${$("#image_edit_window").attr("data-index")})`);
-    }
-    if(item_type == "scene_item"){
-        item = $(`.scene_item:eq(${$("#image_edit_window").attr("data-index")})`);
-    }
+    const item_type = $("#image_edit_window").attr("data-item_type");
 
-    now_edit_item_transform = matrix_to_array(item.css("transform"));
-    $("#edit_image_info #width").attr("value", parseInt(item.css("width")));
-    $("#edit_image_info #height").attr("value", parseInt(item.css("height")));
-    $("#edit_image_info #z-index").attr("value", item.css("z-index"));
-    $("#edit_image_info #x").attr("value", now_edit_item_transform[0]);
-    $("#edit_image_info #y").attr("value", now_edit_item_transform[1]);
-    $("#edit_image_info #rotate").attr("value", now_edit_item_transform[2]);
-    let fixed = item.attr("data-fixed") == "true";
-    let hidden = item.attr("data-hidden") == "true";
-    $("#edit_image_switch #fixed input").prop("checked", fixed);
-    $("#edit_image_switch #hidden input").prop("checked", hidden);
+    $("#image_edit_window #set_image_button").off("mousedown").on("mousedown", function(event){
+        open_image_folder(item_type, "update");
+        event.stopPropagation();
+    });
+    $.getJSON((`/static/room/${get_roomid()}/room.json`), function(data){
+        let item;
+        const index = parseInt($("#image_edit_window").attr("data-index"));
+        if (item_type == "common_item"){
+            item = data["common_item"][index]
+        }
+        else if (item_type == "scene_item") {
+            item = data["now_item"]["scene_item"][index]
+        }
+        $("#edit_image_info #width").attr("value", parseInt(item["width"]));
+        $("#edit_image_info #height").attr("value", parseInt(item["height"]));
+        $("#edit_image_info #z-index").attr("value", item["z-index"]);
+        $("#edit_image_info #x").attr("value", item["x"]);
+        $("#edit_image_info #y").attr("value", item["y"]);
+        $("#edit_image_info #rotate").attr("value", item["rotate"]);
+        $("#edit_image_text #text").text(item["text"]);
+        $("#edit_image_switch #fixed input").prop("checked", item["fixed"]);
+        $("#edit_image_switch #hidden input").prop("checked", item["hidden"]);
+    });
 }
 function close_image_edit_window(){
     let item_type = $("#image_edit_window").attr("data-item_type");
     let data_index = $("#image_edit_window").attr("data-index");
     if(item_type){
-        socket.emit("update_item", 
-        {"roomid" : get_roomid(), "item_type": item_type, "index": Number(data_index),
+        socket.emit("update_item", {
+            "roomid" : get_roomid(), "item_type": item_type, "index": Number(data_index),
             "width": Number($("#edit_image_info #width").val()),
             "height": Number($("#edit_image_info #height").val()),
             "z-index": Number($("#edit_image_info #z-index").val()),
             "x": Number($("#edit_image_info #x").val()),
             "y": Number($("#edit_image_info #y").val()),
+            "text": $("#edit_image_text #text").val(),
             "rotate": Number($("#edit_image_info #rotate").val()),
             "fixed": $("#edit_image_switch #fixed input").prop("checked") == "true",
             "hidden": $("#edit_image_switch #hidden input").prop("checked") == "true"
@@ -497,7 +534,9 @@ $(document).ready(function(){
         // 前景追加
         let fg_path = msg["now_item"]["foreground"] == "" ? bg_path : msg["now_item"]["foreground"];
         const foreground = $("<div id='foreground'></div>");
-        foreground.css({"position": "absolute", "z-index": 0, "width": "480px", "height": "270px", "top": "-135px", "left": "-240px", "background-size": "cover"});
+        let fore_width = msg["now_item"]["fore_width"];
+        let fore_height = msg["now_item"]["fore_height"];
+        foreground.css({"position": "absolute", "z-index": 0, "width": `${fore_width}px`, "height": `${fore_height}px`, "left": `-${fore_width/2}px`, "top": `-${fore_height/2}px`, "background-size": "cover"});
         if(file_exist_check(fg_path) && fg_path != ""){
             foreground.css({"background-image": `url(${fg_path})`});
         }
@@ -515,14 +554,27 @@ $(document).ready(function(){
             let img = new Image();
             img.src = data["filepath"];
             img = $(img);
-            img.css({"position": "absolute", "z-index": data["z-index"], "transform": `translate(${data["x"]}px, ${data["y"]}px) rotate(${data["rotate"]}deg)`, "width": data["width"], "height": data["height"]});
+            img.attr({"draggable": "false"});
+            img.css({"transform": `rotate(${data["rotate"]}deg)`, "width": data["width"], "height": data["height"]});
+            let item = $("<div></div>");
+            $(item).append(img);
 
-            img.css("display", data["hidden"] ? "none" : "auto");
 
-            img.attr({"class": `${item_type} image_item`, "draggable": "false", "data-fixed": data["fixed"], "data-hidden": data["hidden"]});
+            item.css({"display": data["hidden"] ? "none" : "auto", "position": "absolute", "transform": `translate(${data["x"]}px, ${data["y"]}px)`, "z-index": data["z-index"]});
+            item.attr({"class": `${item_type} image_item`, "draggable": "false", "data-fixed": data["fixed"], "data-hidden": data["hidden"]});
 
-            img.on('mousedown mouseover drop drag dragover', function(event){ event.preventDefault(); });
-            $("#items").append(img);
+            item.on('mousedown drop drag dragover', function(event){ event.preventDefault(); });
+            img.on("mouseover", function(event){
+                let hover_text = $(`<div class="hover_text_window">${data["text"]}</div>`);
+                hover_text.css({"top": `${$("#window_zoom").css("top")}`, "left": `${$("#window_zoom").css("left")}`, "transform": `translate(${data["x"]  * zoom_ratio}px, ${(data["y"] + data["height"]) * zoom_ratio}px)`});
+                // 
+                // console.log($("#window_zoom").css("top"));
+                $("#hover_text").append(hover_text);
+            });
+            img.on("mouseleave", function(event){
+                $(".hover_text_window").remove();
+            });
+            $("#items").append(item);
         });
 
         //カード周り
@@ -593,14 +645,25 @@ $(document).ready(function(){
             let img = new Image();
             img.src = data["is_back"] ? deck["back"] : card["path"];
             img = $(img);
-            img.css({"border": `5px solid #00000000`, "background-color": `${get_color(data["deckid"])}80`});
+            img.attr({"draggable": "false"});
+            img.css({"border": `5px solid #00000000`, "background-color": `${get_color(data["deckid"])}80`, "width": deck["width"], "height": deck["height"]});
+            let item = $("<div></div>");
+            $(item).append(img);
 
-            img.css({"position": "absolute", "z-index": 1000, "transform": `translate(${data["x"]}px, ${data["y"]}px)`, "width": deck["width"], "height": deck["height"]});
+            item.css({"position": "absolute", "z-index": 1000, "transform": `translate(${data["x"]}px, ${data["y"]}px)`});
 
-            img.attr({"class": `card_item image_item`, "draggable": "false", "data-id": data["deckid"], "data-cardid": data["cardid"], "data-name": card["name"], "data-back": data["is_back"]});
+            item.attr({"class": `card_item image_item`, "draggable": "false", "data-id": data["deckid"], "data-cardid": data["cardid"], "data-name": card["name"], "data-back": data["is_back"]});
 
-            img.on('mousedown mouseover drop drag dragover', function(event){ event.preventDefault(); });
-            $("#items").append(img);
+            item.on('mousedown mouseover drop drag dragover', function(event){ event.preventDefault(); });
+            img.on("mouseover", function(event){
+                let hover_text = $(`<div class="hover_text_window">${data["text"]}</div>`);
+                hover_text.css({"transform": `scale(${1.0 / zoom_ratio})`});
+                $(this).parent().append(hover_text);
+            });
+            img.on("mouseleave", function(event){
+                //$(".hover_text_window").remove();
+            });
+            $("#items").append(item);
         });
 
         // キャラクター
@@ -620,7 +683,6 @@ $(document).ready(function(){
             
             div.attr({"class": `character_item image_item`, "draggable": "false", "data-id": id, "data-text": character["text"]});
 
-            img.on('mousedown mouseover drop drag dragover', function(event){ event.preventDefault(); });
             div.on('mousedown mouseover drop drag dragover', function(event){ event.preventDefault(); });
 
             div.append(img);
@@ -992,33 +1054,23 @@ $(function(){
     // 右クリックメニュー詳細↓↓↓↓
 
     // 画面右クリック
-    // 背景追加
-    $("#screen_menu > #ground").on("mousedown", function(event){
+    $("#screen_menu").children().on("mousedown", function(event){
+        const id = $(this).attr("id");
         if(event.which == 1){
-            open_image_folder("background", "update");
-            event.stopPropagation();
-        }
-    });
-    // 共通アイテム追加
-    $("#screen_menu > #common").on("mousedown", function(event){
-        if(event.which == 1){
-            open_image_folder("common_item", "add");
-            event.stopPropagation();
-        }
-    });
-    // シーンアイテム追加
-    $("#screen_menu > #scene").on("mousedown", function(event){
-        if(event.which == 1){
-            open_image_folder("scene_item", "add");
-            event.stopPropagation();
-        }
-    });
-
-    // トランプ追加
-    $("#screen_menu > #playingcard").on("mousedown", function(event){
-        if(event.which == 1){
-            socket.emit("add_default_deck", {"roomid" : get_roomid()});
-            $(".out_click_close").css({"display": "none"});
+            if(id == "ground"){
+                open_ground_edit_window();
+            }
+            else if (id == "common"){
+                open_image_folder("common_item", "add");
+            }
+            else if (id == "scene"){
+                open_image_folder("scene_item", "add");
+            }
+            else if (id == "playingcard"){
+                socket.emit("add_default_deck", {"roomid" : get_roomid()});
+                $(".out_click_close").css({"display": "none"});
+            }
+            $("#screen_menu").css("display", "none");
             event.stopPropagation();
         }
     });
@@ -1167,6 +1219,12 @@ $(document).on("mousedown", function(event){
         if(!$(event.target).closest($("#image_edit_window")).length){
             if($("#image_edit_window_wrapper").css("display") != "none"){
                 close_image_edit_window();
+            }
+            event.stopPropagation();
+        }
+        if(!$(event.target).closest($("#ground_edit_window")).length){
+            if($("#ground_edit_window_wrapper").css("display") != "none"){
+                close_ground_edit_window();
             }
             event.stopPropagation();
         }

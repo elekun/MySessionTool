@@ -98,10 +98,16 @@ def delete_img(message):
     emit('assets_update')
 
 @socketio.event
-def set_background(message):
+def update_ground(message):
     with open(get_room_json(message["roomid"]), 'r', encoding="utf-8") as f:
         d = json.load(f)
-        d["now_item"]["background"] = message["filepath"]
+        for k in ["background", "foreground", "width", "height"]:
+            if k == "background" or k == "foreground":
+                if k in message:
+                    d["now_item"][k] = message[k]
+            elif k == "width" or k == "height":
+                if k in message:
+                    d["now_item"]["fore_" + k] = message[k]
 
     save_room_json(message["roomid"], d)
     emit('window_update', d, to=message["roomid"])
