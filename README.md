@@ -41,7 +41,7 @@
 
 サーバーを起動する際は
 
-`python server.py`
+```python server.py```
 
 を実行すればよい。
 
